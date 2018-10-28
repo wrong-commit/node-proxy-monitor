@@ -7,12 +7,13 @@ const ejs = require("ejs")
 const fs = require("fs")
 const https = require("https")
 const http = require("http")
+require("dotenv").path({path:__dirname+'/.env'})
 
 const mongoDBUrl = 'mongodb://127.0.0.1:27017/proxy_tracker_TEST'
-const NODE_PORT = 8079
-const NODE_PORT_SSL = 8081
-const NODE_ADDR = "0.0.0.0" 
-const CURRENT_IP = "PublicIPAddressHere"
+const NODE_PORT = process.env.NODE_HTTP_PORT
+const NODE_PORT_SSL = process.env.NODE_HTTPS_PORT
+const NODE_ADDR = process.env.NODE_ADDRESS
+const CURRENT_IP = process.env.PUBLIC_IP
 
 sslOptions = {
     key: fs.readFileSync(__dirname+'/ssl/key.pem'),
