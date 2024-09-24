@@ -7,23 +7,26 @@ const ejs = require("ejs")
 const fs = require("fs")
 const https = require("https")
 const http = require("http")
-require("dotenv").path({path:__dirname+'/.env'})
+// require("dotenv").path({path:__dirname+'/.env'})
 
-const mongoDBUrl = 'mongodb://127.0.0.1:27017/proxy_tracker_TEST'
+// Listen on the default MongoDB port
+const mongoDBUrl = process.env.MONGODB_URL
 const NODE_PORT = process.env.NODE_HTTP_PORT
 const NODE_PORT_SSL = process.env.NODE_HTTPS_PORT
 const NODE_ADDR = process.env.NODE_ADDRESS
 const CURRENT_IP = process.env.PUBLIC_IP
 
 sslOptions = {
-    key: fs.readFileSync(__dirname+'/ssl/key.pem'),
-    cert: fs.readFileSync(__dirname+'/ssl/server_certificate.crt')
+	// Private key in PEM format
+    key: fs.readFileSync('/ssl/squidCA.pem'),
+	// Cert chain in PEM format
+    cert: fs.readFileSync('/ssl/squidCA.pem')
 }
 
 mongoose.connect(mongoDBUrl, { useNewUrlParser: true }, function (err) {
 	 if (err) throw err;
 	 console.log('Successfully connected'); 
-});
+})
 
 // var PageVisit = mongoose.model('PageVisit', pageVisitSchema)
 // will need another schema for form submitions
@@ -55,8 +58,8 @@ function generateJS(ip,port){
             console.log(err)
             throw err
         }
-        console.log("Rendered w.js, writing to "+__dirname + "/public/js/w.js")
-        fs.writeFile(__dirname+"/public/js/w.js", data, function(err){
+        console.log("Rendered w.js, writing to "+ "/generated_js/w.js")
+        fs.writeFile("/generated_js/w.js", data, function(err){
             if (err) throw err
         })
 	})
