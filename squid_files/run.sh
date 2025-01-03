@@ -9,6 +9,7 @@ chmod 777 /run
 # Writable /var/log/squid dir
 chmod -R o+rw /var/log/squid
 # Build the SSL DB for security generation
+rm -rf /var/lib/ssl_db
 /usr/lib/squid/security_file_certgen -c -s /var/lib/ssl_db -M 4MB
 # Executes /
 sed --in-place 's/^M//g' /rewrite.py

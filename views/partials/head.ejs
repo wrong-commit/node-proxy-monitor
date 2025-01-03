@@ -7,7 +7,8 @@
     	padding-top:50px;
     	background-color: black;
     }
-    p, td { font-size: 11px; color: rgb(0, 255, 0); }
+    h2 { color: rgb(0, 255, 0); }
+    p, label, td, h2 { font-size: 11px; color: rgb(0, 255, 0); }
     thead td { font-size: 16px; }
     .admin {
     	width: 85%;
@@ -21,7 +22,7 @@
     	max-width: 200px;
     }
     table {
-    border-collapse: collapse;
+    	border-collapse: collapse;
 	}
 	table td, table th {
 	    border: 1px solid rgb(0,255,0);
@@ -41,3 +42,65 @@
 	    border-right: 0;
 	}*/
 </style>
+
+<script>
+	/**
+ * Helper function for POSTing data as JSON with fetch.
+ *
+ * @param {Object} options
+ * @param {string} options.url - URL to POST data to
+ * @param {FormData} options.formData - `FormData` instance
+ * @return {Object} - Response body from URL that was POSTed to
+ */
+var postFormDataAsJson = async({
+  url,
+  formData
+}) => {
+  const plainFormData = Object.fromEntries(formData.entries());
+  const formDataJsonString = JSON.stringify(plainFormData);
+
+  const fetchOptions = {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+    },
+    body: formDataJsonString,
+  };
+
+  console.log("about to post" + formDataJsonString)
+  const response = await fetch(url, fetchOptions);
+
+  if (!response.ok) {
+    const errorMessage = await response.text();
+    throw new Error(errorMessage);
+  }
+
+  return response.json();
+}
+/**
+ * Event handler for a form submit event.
+ * @see https://developer.mozilla.org/en-US/docs/Web/API/HTMLFormElement/submit_event
+ * @example const exampleForm = document.getElementById("example-form");
+ *          exampleForm.addEventListener("submit", handleFormSubmit);
+ * @param {SubmitEvent} event
+ */
+var handleFormSubmit = async(event) => {
+  event.preventDefault();
+  const form = event.currentTarget;
+  const url = form.action;
+
+  try {
+    const formData = new FormData(form);
+    const responseData = await postFormDataAsJson({
+      url,
+      formData
+    });
+    console.log({
+      responseData
+    });
+  } catch (error) {
+    console.error(error);
+  }
+}
+</script>

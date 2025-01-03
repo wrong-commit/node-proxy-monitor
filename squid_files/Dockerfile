@@ -23,5 +23,6 @@ RUN ln -sf /dev/stdout /tmp/rewrite_html_log
 # Expose HTTP proxy port
 EXPOSE 8080
 # Modify SSL certificates so they can be loaded 
+RUN mkdir -p /var/lib/ssl_db
 COPY ./run.sh /run.sh 
 CMD '/run.sh'

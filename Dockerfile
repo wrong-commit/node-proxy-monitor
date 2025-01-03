@@ -6,6 +6,7 @@ RUN npm install --production
 
 COPY public/ /src/public
 COPY models/ /src/models
+COPY views/ /src/views
 COPY malicious.ejs /src/
 COPY server.js /src/
 
